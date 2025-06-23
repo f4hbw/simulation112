@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="128dp"
+    android:height="128dp"
+    android:viewportWidth="350"
+    android:viewportHeight="350">
+
+    <!-- Corps principal -->
+    <path
+        android:fillColor="#FF3A3A3A"
+        android:strokeColor="#FF2A2A2A"
+        android:strokeWidth="2"
+        android:pathData="M40,100 h270 v150 h-270 z"
+        android:strokeLineJoin="round"/>
+
+    <!-- Partie supérieure arrondie -->
+    <path
+        android:fillColor="#FF404040"
+        android:pathData="M40,100 Q40,80 60,80 L290,80 Q310,80 310,100 L310,120 L40,120 Z"/>
+
+    <!-- Écran central -->
+    <path
+        android:fillColor="#FFE8E8E8"
+        android:strokeColor="#FFCCCCCC"
+        android:strokeWidth="1"
+        android:pathData="M80,140 h190 v90 h-190 z"
+        android:strokeLineJoin="round"/>
+
+    <!-- Boutons latéraux gauches -->
+    <path
+        android:fillColor="#FF2A2A2A"
+        android:pathData="
+            M60,160 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0
+            M60,180 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0
+            M60,200 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0"/>
+
+    <!-- Boutons latéraux droits -->
+    <path
+        android:fillColor="#FF2A2A2A"
+        android:pathData="
+            M290,160 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0
+            M290,180 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0
+            M290,200 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0"/>
+
+    <!-- Partie inférieure -->
+    <path
+        android:fillColor="#FF2A2A2A"
+        android:pathData="M60,240 h230 v10 h-230 z"/>
+
+    <!-- LEDs -->
+    <path
+        android:fillColor="#FFFF4444"
+        android:pathData="M280,110 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0"/>
+    <path
+        android:fillColor="#FF44FF44"
+        android:pathData="M270,110 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0"/>
+
+</vector>

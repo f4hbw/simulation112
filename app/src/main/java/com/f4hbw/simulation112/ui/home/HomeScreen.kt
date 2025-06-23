@@ -1,147 +1,222 @@
+// File: app/src/main/java/com/f4hbw/simulation112/ui/home/HomeScreen.kt
 package com.f4hbw.simulation112.ui.home
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.CardDefaults.elevatedCardElevation
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.f4hbw.simulation112.R
+
+private val SoftRed = Color(0xFFCC3333)
+
+data class QuickAction(
+    val label: String,
+    val icon: ImageVector,
+    val onClick: () -> Unit,
+    val contentDescription: String,
+    val containerColor: Color? = null
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     pseudo: String,
-    onLogout: () -> Unit,
-    onScenarioClick: () -> Unit   // ← nouveau callback
+    onProfileClick: () -> Unit,
+    onAvailabilityClick: () -> Unit,
+    onScenarioClick: () -> Unit,
+    onAboutClick: () -> Unit,
+    onSettingsClick: (() -> Unit)? = null,
+    onLogout: () -> Unit
 ) {
-    var available by remember { mutableStateOf(false) }
+    // État de disponibilité
+    var isAvailable by remember { mutableStateOf(false) }
+    val toggleAvailability = {
+        isAvailable = !isAvailable
+        onAvailabilityClick()
+    }
+    val availabilityLabel = if (isAvailable) "Disponible" else "Indisponible"
+    val availabilityColor = if (isAvailable) Color(0xFF4CAF50) else Color.Gray
+
+    val settingsAction = onSettingsClick ?: {}
+
+    val quickActions = listOf(
+        QuickAction("Mon profil", Icons.Default.Person, onProfileClick,    "Accéder à mon profil"),
+        QuickAction(availabilityLabel, Icons.Default.Check, toggleAvailability,
+            "Changer état de disponibilité", availabilityColor),
+        QuickAction("Scénario",   Icons.Default.PlayArrow, onScenarioClick, "Démarrer un scénario"),
+        QuickAction("Réglages",   Icons.Default.Settings,  settingsAction,   "Accéder aux réglages")
+    )
+    val aboutAction = QuickAction("À propos", Icons.Default.Info, onAboutClick, "Informations sur l'application")
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Bienvenue, $pseudo !") },
-                colors = TopAppBarDefaults.smallTopAppBarColors(
-                    containerColor = Color(0xFFB71C1C),
-                    titleContentColor = Color.White
-                ),
+                title = { Text("Simulation112", color = Color.White, fontWeight = FontWeight.Medium) },
                 actions = {
-                    IconButton(onClick = onLogout) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Déconnexion",
-                            tint = Color.White,
-                            modifier = Modifier.size(24.dp)
-                        )
+                    IconButton(
+                        onClick = onLogout,
+                        modifier = Modifier.semantics {
+                            role = Role.Button
+                            contentDescription = "Se déconnecter"
+                        }
+                    ) {
+                        Icon(Icons.Default.ExitToApp, contentDescription = null, tint = Color.White)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = SoftRed)
             )
         }
-    ) { padding ->
+    ) { paddingValues ->
         Column(
             modifier = Modifier
-                .padding(padding)
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(paddingValues)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Header
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Première ligne
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    HomeActionButton(Icons.Default.Person, "Mon profil") { /* TODO */ }
-                    HomeActionButton(Icons.Default.PlayArrow, "Paramètres de simulation") {
-                        onScenarioClick()  // ← navigation déclenchée ici
-                    }
-                }
-                Spacer(Modifier.height(16.dp))
-
-                // Deuxième ligne
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    val (icon, label, border) = if (available) {
-                        Triple(Icons.Default.CheckCircle, "Disponible", Color(0xFF388E3C))
-                    } else {
-                        Triple(Icons.Default.Close, "Indisponible", Color.Gray)
-                    }
-                    HomeActionButton(icon, label, border) { available = !available }
-                    HomeActionButton(Icons.Default.Settings, "Paramètres") { /* TODO */ }
-                }
-                Spacer(Modifier.height(16.dp))
-
-                // Troisième ligne
-                HomeActionButton(Icons.Default.Info, "À propos") { /* TODO */ }
+                Text(
+                    text = "Bonjour, $pseudo",
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        fontSize = 28.sp, fontWeight = FontWeight.Bold
+                    ),
+                    color = SoftRed,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = "Que voulez-vous faire aujourd'hui ?",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
             }
 
-            // Image du bipeur centrée en bas, taille doublée (720.dp)
-            Image(
-                painter = painterResource(R.drawable.bip_pompier),
-                contentDescription = "Bipeur pompier",
-                modifier = Modifier.size(720.dp)
-            )
+            // Bipeur avec overlay du statut
+            Box(
+                modifier = Modifier.size(540.dp)
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_beeper),
+                    contentDescription = "Bipeur pompier",
+                    modifier = Modifier.fillMaxSize()
+                )
+                Text(
+                    text = availabilityLabel,
+                    color = Color.Black,
+                    fontSize = 32.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .offset(x = 123.dp, y = 216.dp)
+                        .width(293.dp)
+                        .height(139.dp)
+                )
+            }
+
+            // Grille + bouton À propos en bas avec même taille
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(quickActions) { action ->
+                        QuickActionCard(action)
+                    }
+                }
+                // On restreint à la moitié de la largeur pour coller aux autres boutons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Box(modifier = Modifier.fillMaxWidth(0.5f)) {
+                        QuickActionCard(aboutAction)
+                    }
+                }
+            }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeActionButton(
-    icon: ImageVector,
-    label: String,
-    borderColor: Color = Color(0xFFFFCDD2),
-    onClick: () -> Unit
-) {
-    val buttonSize = 300.dp * 0.8f
+private fun QuickActionCard(action: QuickAction) {
+    val background = action.containerColor ?: MaterialTheme.colorScheme.surface
     Card(
         modifier = Modifier
-            .size(buttonSize)
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(2.dp, borderColor),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            .fillMaxWidth()
+            .aspectRatio(2.5f)
+            .semantics {
+                role = Role.Button
+                contentDescription = action.contentDescription
+            },
+        shape = RoundedCornerShape(10.dp),
+        border = BorderStroke(1.dp, SoftRed.copy(alpha = 0.3f)),
+        elevation = elevatedCardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = background)
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .clickable { action.onClick() }
+                .padding(8.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = borderColor,
-                modifier = Modifier.size(48.dp)
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = label,
-                fontSize = 16.sp,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Black
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Icon(
+                    imageVector = action.icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp),
+                    tint = SoftRed
+                )
+                Text(
+                    text = action.label,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = 20.sp, fontWeight = FontWeight.Medium
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2
+                )
+            }
         }
     }
 }

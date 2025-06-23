@@ -1,3 +1,4 @@
+// File: app/src/main/java/com/f4hbw/simulation112/ui/NavGraph.kt
 package com.f4hbw.simulation112.ui
 
 import androidx.compose.runtime.Composable
@@ -16,7 +17,6 @@ import com.f4hbw.simulation112.ui.auth.SignupScreen
 import com.f4hbw.simulation112.ui.home.HomeScreen
 import com.f4hbw.simulation112.ui.scenario.ScenarioScreen
 import com.f4hbw.simulation112.viewmodel.AuthViewModel
-import com.f4hbw.simulation112.viewmodel.ScenarioViewModel
 
 sealed class Screen(val route: String) {
     object Login    : Screen("login")
@@ -33,7 +33,6 @@ sealed class Screen(val route: String) {
 fun NavGraph() {
     val navController = rememberNavController()
     val authVm: AuthViewModel = viewModel()
-    val scenarioVm: ScenarioViewModel = viewModel()
     val token by authVm.token.collectAsState()
 
     val startRoute = if (token.isNullOrEmpty()) Screen.Login.route else Screen.Home.route
@@ -52,39 +51,46 @@ fun NavGraph() {
             )
         }
         composable(Screen.Signup.route) {
-            SignupScreen(viewModel = authVm, onNavigateBack = { navController.popBackStack() })
+            SignupScreen(
+                viewModel      = authVm,
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
         composable(Screen.Forgot.route) {
-            ForgotPasswordScreen(viewModel = authVm, onNavigateBack = { navController.popBackStack() })
+            ForgotPasswordScreen(
+                viewModel      = authVm,
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
         composable(
             route = Screen.Reset.route,
             arguments = listOf(navArgument("token") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val tokenArg = backStackEntry.arguments?.getString("token") ?: ""
+        ) { backStack ->
+            val tok = backStack.arguments?.getString("token") ?: ""
             ResetPasswordScreen(
                 viewModel      = authVm,
-                token          = tokenArg,
+                token          = tok,
                 onNavigateBack = { navController.popBackStack() }
             )
         }
         composable(Screen.Home.route) {
             val pseudo by authVm.userPseudo.collectAsState()
             HomeScreen(
-                pseudo          = pseudo,
-                onLogout        = {
+                pseudo               = pseudo,
+                onProfileClick       = { /* TODO: Profil */ },
+                onAvailabilityClick  = { /* TODO: Disponibilité */ },
+                onScenarioClick      = { navController.navigate(Screen.Scenario.route) },
+                onAboutClick         = { /* TODO: À propos */ },
+                onLogout             = {
                     authVm.clearToken()
                     navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.Home.route) { inclusive = true }
                     }
-                },
-                onScenarioClick = {
-                    navController.navigate(Screen.Scenario.route)
                 }
             )
         }
         composable(Screen.Scenario.route) {
-            ScenarioScreen(viewModel = scenarioVm)
+            ScenarioScreen()
         }
     }
 }
