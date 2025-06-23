@@ -1,4 +1,3 @@
-// File: app/src/main/java/com/f4hbw/simulation112/ui/home/HomeScreen.kt
 package com.f4hbw.simulation112.ui.home
 
 import androidx.compose.foundation.BorderStroke
@@ -51,7 +50,7 @@ fun HomeScreen(
     onSettingsClick: (() -> Unit)? = null,
     onLogout: () -> Unit
 ) {
-    // État de disponibilité
+    // État local de disponibilité
     var isAvailable by remember { mutableStateOf(false) }
     val toggleAvailability = {
         isAvailable = !isAvailable
@@ -59,22 +58,34 @@ fun HomeScreen(
     }
     val availabilityLabel = if (isAvailable) "Disponible" else "Indisponible"
     val availabilityColor = if (isAvailable) Color(0xFF4CAF50) else Color.Gray
-
     val settingsAction = onSettingsClick ?: {}
 
     val quickActions = listOf(
-        QuickAction("Mon profil", Icons.Default.Person, onProfileClick,    "Accéder à mon profil"),
-        QuickAction(availabilityLabel, Icons.Default.Check, toggleAvailability,
-            "Changer état de disponibilité", availabilityColor),
-        QuickAction("Scénario",   Icons.Default.PlayArrow, onScenarioClick, "Démarrer un scénario"),
-        QuickAction("Réglages",   Icons.Default.Settings,  settingsAction,   "Accéder aux réglages")
+        QuickAction("Mon profil",      Icons.Default.Person,    onProfileClick,    "Accéder à mon profil"),
+        QuickAction(
+            availabilityLabel,
+            Icons.Default.Check,
+            toggleAvailability,
+            "Changer état de disponibilité",
+            availabilityColor
+        ),
+        QuickAction("Scénario",        Icons.Default.PlayArrow, onScenarioClick,   "Démarrer un scénario"),
+        QuickAction("Réglages",        Icons.Default.Settings,  settingsAction,    "Accéder aux réglages")
     )
-    val aboutAction = QuickAction("À propos", Icons.Default.Info, onAboutClick, "Informations sur l'application")
+
+    val aboutAction = QuickAction(
+        label              = "À propos",
+        icon               = Icons.Default.Info,
+        onClick            = onAboutClick,
+        contentDescription = "Informations sur l'application"
+    )
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Simulation112", color = Color.White, fontWeight = FontWeight.Medium) },
+                title = {
+                    Text("Simulation112", color = Color.White, fontWeight = FontWeight.Medium)
+                },
                 actions = {
                     IconButton(
                         onClick = onLogout,
@@ -96,73 +107,72 @@ fun HomeScreen(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            verticalArrangement   = Arrangement.spacedBy(12.dp),
+            horizontalAlignment   = Alignment.CenterHorizontally
         ) {
-            // Header
+            // En-tête avec le pseudo
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalAlignment   = Alignment.CenterHorizontally,
+                verticalArrangement   = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = "Bonjour, $pseudo",
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                        fontSize = 28.sp, fontWeight = FontWeight.Bold
+                    text      = "Bonjour, $pseudo",
+                    style     = MaterialTheme.typography.headlineLarge.copy(
+                        fontSize   = 28.sp,
+                        fontWeight = FontWeight.Bold
                     ),
-                    color = SoftRed,
+                    color     = SoftRed,
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    text = "Que voulez-vous faire aujourd'hui ?",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text      = "Que voulez-vous faire aujourd’hui ?",
+                    style     = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
+                    color     = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
             }
 
             // Bipeur avec overlay du statut
-            Box(
-                modifier = Modifier.size(540.dp)
-            ) {
+            Box(modifier = Modifier.size(540.dp)) {
                 Image(
-                    painter = painterResource(R.drawable.ic_beeper),
+                    painter            = painterResource(R.drawable.ic_beeper),
                     contentDescription = "Bipeur pompier",
-                    modifier = Modifier.fillMaxSize()
+                    modifier           = Modifier.fillMaxSize()
                 )
                 Text(
-                    text = availabilityLabel,
-                    color = Color.Black,
-                    fontSize = 32.sp,
+                    text      = availabilityLabel,
+                    color     = Color.Black,
+                    fontSize  = 32.sp,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier
+                    modifier  = Modifier
                         .offset(x = 123.dp, y = 216.dp)
                         .width(293.dp)
                         .height(139.dp)
                 )
             }
 
-            // Grille + bouton À propos en bas avec même taille
+            // Grille des 4 actions + bouton À propos
             Column(
-                modifier = Modifier
+                modifier             = Modifier
                     .fillMaxWidth()
                     .weight(1f),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    columns              = GridCells.Fixed(2),
+                    modifier             = Modifier.fillMaxWidth(),
+                    contentPadding       = PaddingValues(vertical = 8.dp),
+                    horizontalArrangement= Arrangement.spacedBy(12.dp),
+                    verticalArrangement  = Arrangement.spacedBy(12.dp)
                 ) {
                     items(quickActions) { action ->
                         QuickActionCard(action)
                     }
                 }
-                // On restreint à la moitié de la largeur pour coller aux autres boutons
+                // Bouton "À propos" centré, même taille que les autres
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                    modifier             = Modifier.fillMaxWidth(),
+                    horizontalArrangement= Arrangement.Center
                 ) {
                     Box(modifier = Modifier.fillMaxWidth(0.5f)) {
                         QuickActionCard(aboutAction)
@@ -178,43 +188,44 @@ fun HomeScreen(
 private fun QuickActionCard(action: QuickAction) {
     val background = action.containerColor ?: MaterialTheme.colorScheme.surface
     Card(
-        modifier = Modifier
+        modifier   = Modifier
             .fillMaxWidth()
             .aspectRatio(2.5f)
             .semantics {
-                role = Role.Button
+                role               = Role.Button
                 contentDescription = action.contentDescription
             },
-        shape = RoundedCornerShape(10.dp),
-        border = BorderStroke(1.dp, SoftRed.copy(alpha = 0.3f)),
-        elevation = elevatedCardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = background)
+        shape      = RoundedCornerShape(10.dp),
+        border     = BorderStroke(1.dp, SoftRed.copy(alpha = 0.3f)),
+        elevation  = elevatedCardElevation(defaultElevation = 2.dp),
+        colors     = CardDefaults.cardColors(containerColor = background)
     ) {
         Box(
-            modifier = Modifier
+            modifier          = Modifier
                 .fillMaxSize()
                 .clickable { action.onClick() }
                 .padding(8.dp),
             contentAlignment = Alignment.Center
         ) {
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalAlignment   = Alignment.CenterHorizontally,
+                verticalArrangement   = Arrangement.spacedBy(4.dp)
             ) {
                 Icon(
-                    imageVector = action.icon,
+                    imageVector        = action.icon,
                     contentDescription = null,
-                    modifier = Modifier.size(32.dp),
-                    tint = SoftRed
+                    modifier           = Modifier.size(32.dp),
+                    tint               = SoftRed
                 )
                 Text(
-                    text = action.label,
+                    text      = action.label,
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 20.sp, fontWeight = FontWeight.Medium
+                    style     = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize   = 20.sp,
+                        fontWeight = FontWeight.Medium
                     ),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 2
+                    color     = MaterialTheme.colorScheme.onSurface,
+                    maxLines  = 2
                 )
             }
         }
